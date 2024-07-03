@@ -2,7 +2,7 @@
 
 project(protection)
 
-add_library(${PROJECT_NAME} src/pdis.cpp)
+add_library(${PROJECT_NAME} src/ptoc.cpp)
 
 target_include_directories( ${PROJECT_NAME}
     PUBLIC 
