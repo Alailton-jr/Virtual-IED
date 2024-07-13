@@ -1,0 +1,53 @@
+{
+    "SampledValue": {
+        "svID": "SV_Bus05",
+        "mac_dst": [1, 12, 205, 1, 0, 4],
+        "channel_conf": [0, 1, 2, 3, 4, 5, 6, 7],
+        "vLan_priority": 4,
+        "vLan_id": 100,
+        "smpRate": 80,
+        "noChannels": 8,
+        "frequency": 60
+    },
+    "Protection": [
+        {
+            "type": "pioc_phase",
+            "pickup": 800,
+            "time_dial": 0.8
+        },
+        {
+            "type": "pioc_neutral",
+            "pickup": 200,
+            "time_dial": 0.8
+        },
+        {
+            "type": "ptoc_phase",
+            "pickup": 300,
+            "time_dial": 0.8,
+            "curve": "U1"
+        }
+    ],
+    "Goose":[
+        {
+            "marDst": "01:0C:CD:01:00:01",
+            "appID": 4000,
+            "vLan_id": 100,
+            "vLan_priority": 4,
+            "minTime": 100,
+            "maxTime": 2000,
+            "confRev": 1,
+            "datSet": "GODat_01",
+            "goID": "GO_01",
+            "gocbRef": "GCBR_01",
+            "data":[
+                {
+                    "block": "protection",
+                    "name": "pioc_phase",
+                    "value": "pickup",
+                    "level": 0,
+                    "type": "Boolean"
+                }
+            ]
+        }
+    ]
+}
