@@ -214,20 +214,29 @@ int main(int, char**){
 
     Ied.init();
 
+    Ied.sniffer.phasor_mod[2] = 0;
     Ied.sniffer.phasor_mod[3] = 0;
 
     Ied.prot.startThread();
     Ied.goose.startThread();
 
-    sleep(2);
+    
     struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    double tdif;
+    do{
+        clock_gettime(CLOCK_MONOTONIC, &t1);
+        pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
+        tdif = (t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9;
+    }while (tdif < 2);
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
     pthread_mutex_lock(&Ied.sniffer.sniffer_mutex);
+    Ied.sniffer.phasor_mod[2] = 1200;
     Ied.sniffer.phasor_mod[3] = 1200;
     pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
     pthread_mutex_unlock(&Ied.sniffer.sniffer_mutex);
-    while(Ied.prot.pioc_neutral[0].trip_flag != 1){
+    while(Ied.prot.ptoc_phase[0].trip_flag != 1){
         continue;
     }
     clock_gettime(CLOCK_MONOTONIC, &t1);

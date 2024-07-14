@@ -276,6 +276,7 @@ void* single_goose(void* arg){
         }
 
         // Check if the values have changed
+        pthread_mutex_lock(go_conf->prot_mutex);
         value_changed = 0;
         for (int i=0;i<go_conf->data_pointers.size();i++){
             switch (go_conf->data_type[i].type)
@@ -294,11 +295,8 @@ void* single_goose(void* arg){
                 }
             }
         }
-    
-        pthread_mutex_lock(go_conf->prot_mutex);
         pthread_cond_wait(go_conf->prot_cond, go_conf->prot_mutex);
         pthread_mutex_unlock(go_conf->prot_mutex);
-
     }
     return nullptr;
 }

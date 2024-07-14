@@ -49,7 +49,6 @@ public:
 
         // PIOC Phase
         for (int i=0;i<this->pioc_phase.size();i++){
-            break;
             this->pioc_phase[i].sniffer_mutex = this->sniffer_mutex;
             this->pioc_phase[i].sniffer_cond = this->sniffer_cond;
             this->pioc_phase[i].prot_cond = &this->prot_cond;
@@ -75,7 +74,6 @@ public:
 
         // PTOC Phase
         for (int i=0;i<this->ptoc_phase.size();i++){
-            break;
             this->ptoc_phase[i].sniffer_mutex = this->sniffer_mutex;
             this->ptoc_phase[i].sniffer_cond = this->sniffer_cond;
             this->ptoc_phase[i].prot_cond = &this->prot_cond;
@@ -102,18 +100,30 @@ public:
     void stopThread(){
         for (int i=0;i<this->pioc_phase.size();i++){
             this->pioc_phase[i].stop = 1;
+            while (this->pioc_phase[i].running){
+                pthread_cond_broadcast(this->pioc_phase[i].sniffer_cond);
+            }
         }
 
         for (int i=0;i<this->pioc_neutral.size();i++){
             this->pioc_neutral[i].stop = 1;
+            while (this->pioc_neutral[i].running){
+                pthread_cond_broadcast(this->pioc_neutral[i].sniffer_cond);
+            }
         }
 
         for (int i=0;i<this->ptoc_phase.size();i++){
             this->ptoc_phase[i].stop = 1;
+            while (this->ptoc_phase[i].running){
+                pthread_cond_broadcast(this->ptoc_phase[i].sniffer_cond);
+            }
         }
 
         for (int i=0;i<this->ptoc_neutral.size();i++){
             this->ptoc_neutral[i].stop = 1;
+            while (this->ptoc_neutral[i].running){
+                pthread_cond_broadcast(this->ptoc_neutral[i].sniffer_cond);
+            }
         }
 
         // Join

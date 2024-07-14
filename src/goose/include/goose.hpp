@@ -86,9 +86,9 @@ public:
 
     void stopThread(){
         this->stop = 1;
-        pthread_mutex_lock(this->prot_mutex);
-        pthread_cond_broadcast(this->prot_cond);
-        pthread_mutex_unlock(this->prot_mutex);
+        while (this->running){
+            pthread_cond_broadcast(this->prot_cond);
+        }
         pthread_join(this->thd, NULL);
     }
 };

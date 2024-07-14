@@ -28,6 +28,7 @@ public:
 
         this->prot.sniffer_cond = &this->sniffer.sniffer_cond;
         this->prot.sniffer_mutex = &this->sniffer.sniffer_mutex;
+        
         this->prot.phasor_mod = &this->sniffer.phasor_mod;
         this->prot.phasor_ang = &this->sniffer.phasor_ang;
     }
