@@ -11,4 +11,8 @@
 
 #define Protection_ThreadPriority 90
 
+
+#define PORT 8080
+#define MAX_CLIENTS 10
+
 #endif
