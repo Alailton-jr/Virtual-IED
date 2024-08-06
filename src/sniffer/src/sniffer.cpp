@@ -190,7 +190,7 @@ void* SnifferThread(void* arg){
 
     sv_info_p = &sniffer_conf->sv_info;
     idx_buffer = 0;
-    windows_step = sniffer_conf->sv_info.smpRate * WINDOW_STEP;
+    windows_step = (int32_t) (sniffer_conf->sv_info.smpRate * WINDOW_STEP);
     module = &sniffer_conf->phasor_mod;
     ang = &sniffer_conf->phasor_ang;
 

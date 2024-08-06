@@ -2,7 +2,6 @@
 #include "main.hpp"
 
 #include <fstream>
-#include <filesystem>
 #include <goose.hpp>
 
 std::string root_folder = "oi";
@@ -210,37 +209,46 @@ int main(int, char**){
 
     IED_class Ied;
 
-    load_config(Ied, "Main/files/ied_config.json");
+    load_config(Ied, "files/ied_config.json");
 
     Ied.init();
-
-    Ied.sniffer.phasor_mod[2] = 0;
-    Ied.sniffer.phasor_mod[3] = 0;
 
     Ied.prot.startThread();
     Ied.goose.startThread();
 
-    
-    struct timespec t0, t1;
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    double tdif;
-    do{
-        clock_gettime(CLOCK_MONOTONIC, &t1);
-        pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
-        tdif = (t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9;
-    }while (tdif < 2);
+    std::vector<double> times;
 
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    pthread_mutex_lock(&Ied.sniffer.sniffer_mutex);
-    Ied.sniffer.phasor_mod[2] = 1200;
-    Ied.sniffer.phasor_mod[3] = 1200;
-    pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
-    pthread_mutex_unlock(&Ied.sniffer.sniffer_mutex);
-    while(Ied.prot.ptoc_phase[0].trip_flag != 1){
-        continue;
+    for (int _ =0; _<2;_++){
+        Ied.sniffer.phasor_mod[2] = 0;
+        Ied.sniffer.phasor_mod[3] = 0;
+
+        struct timespec t0, t1;
+        clock_gettime(CLOCK_MONOTONIC, &t0);
+        double tdif;
+        do{
+            clock_gettime(CLOCK_MONOTONIC, &t1);
+            pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
+            tdif = (t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9;
+        }while (tdif < 2);
+
+
+        clock_gettime(CLOCK_MONOTONIC, &t0);
+        Ied.sniffer.phasor_mod[2] = 1200;
+        Ied.sniffer.phasor_mod[3] = 1200;
+        pthread_mutex_lock(&Ied.sniffer.sniffer_mutex);
+        pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
+        pthread_mutex_unlock(&Ied.sniffer.sniffer_mutex);
+        while(Ied.prot.pioc_phase[0].trip_flag != 1){
+            continue;
+        }
+        clock_gettime(CLOCK_MONOTONIC, &t1);
+        std::cout << (t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9 << std::endl;
+        times.push_back((t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9);
     }
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    std::cout << (t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9 << std::endl;
+    
+
+    // Get mean
+    std::cout << "mean: "<< std::accumulate(times.begin(), times.end(), 0.0)/times.size() << std::endl;
 
     // ied_conf.stopIED();
     Ied.prot.stopThread();

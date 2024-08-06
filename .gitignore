@@ -40,7 +40,6 @@ install_manifest.txt
 *.dylib
 *.dll
 *.so.*
-*.dylib
 
 # Fortran module files
 *.mod
@@ -50,7 +49,6 @@ install_manifest.txt
 *.la
 *.a
 *.lib
-*.lo
 
 # Executables
 *.exe

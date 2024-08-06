@@ -12,6 +12,8 @@ void* pioc_neutral_thread(void* arg);
 void* ptoc_phase_thread(void* arg);
 void* ptoc_neutral_thread(void* arg);
 
+#include <thread>
+
 class ProtectionClass{
 public:
     std::vector<pioc_config> pioc_phase;
@@ -27,6 +29,8 @@ public:
 
     std::vector<double> *phasor_mod;
     std::vector<double> *phasor_ang;
+
+    std::thread test;
 
     int priority;
 
@@ -98,6 +102,7 @@ public:
     }
 
     void stopThread(){
+
         for (int i=0;i<this->pioc_phase.size();i++){
             this->pioc_phase[i].stop = 1;
             while (this->pioc_phase[i].running){
