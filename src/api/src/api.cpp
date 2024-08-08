@@ -1,8 +1,6 @@
 
 #include "api.hpp"
 
-
-
 class APIClass {
 public:
     int running, stop;
@@ -10,7 +8,7 @@ public:
 };
 
 void* handle_client(void* arg){
-
+    return nullptr;
 }
 
 void* runServer(void *arg){

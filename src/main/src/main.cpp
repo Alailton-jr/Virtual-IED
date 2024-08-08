@@ -206,13 +206,12 @@ void load_config(IED_class& conf, std::string file_name) {
 
 int main(int, char**){
 
-
     IED_class Ied;
 
     load_config(Ied, "files/ied_config.json");
 
     Ied.init();
-
+    // Ied.sniffer.startThread();
     Ied.prot.startThread();
     Ied.goose.startThread();
 
@@ -246,11 +245,13 @@ int main(int, char**){
         times.push_back((t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9);
     }
     
+    sleep(10);
 
-    // Get mean
+    // Get mean value
     std::cout << "mean: "<< std::accumulate(times.begin(), times.end(), 0.0)/times.size() << std::endl;
 
     // ied_conf.stopIED();
+    // Ied.sniffer.stopThread();
     Ied.prot.stopThread();
     Ied.goose.stopThread();
 

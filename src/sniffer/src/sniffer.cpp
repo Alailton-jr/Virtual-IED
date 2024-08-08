@@ -36,6 +36,8 @@ int updateFlag = 0;
 std::vector<double>* module;
 std::vector<double>* ang;
 
+std::vector<uint8_t*> registeredMACs;
+
 int debug_count=0;
 
 void process_buffer(){
@@ -93,21 +95,7 @@ struct task_arg{
     sampledValue_info info;
 };
 
-void process_pkt(task_arg* arg) {
-
-    // Todo: Chech for PRP Packets, do not duplicate the data from them
-
-    uint8_t* frame = arg->pkt;
-    ssize_t frameSize = arg->pkt_len;
-    sampledValue_info sv = arg->info;
-
-    // -------- Process the frame -------- //
-
-    // uint16_t smpCount;
-    int j = 0;
-    int i = (frame[12] == 0x81 && frame[13] == 0x00) ? 16 : 12; // Skip Ethernet and vLAN
-
-    if (!(frame[i] == 0x88 && frame[i+1] == 0xba)) return; // Check if packet is SV
+void process_SV_packet(uint8_t* frame, ssize_t frameSize, sampledValue_info sv, int i){
 
     i += (frame[i+11] == 0x82) ? 17 : (frame[i+11] == 0x81) ? 16 : 15; // Skip SV Header until seqAsdu
     
@@ -141,7 +129,7 @@ void process_pkt(task_arg* arg) {
             if (i >= frameSize) return;
         }
         updateFlag = 1;
-        j = 0;
+        int j = 0;
         while (j < frame[i+1]) { // Decode the raw values
             buffer[j/8][idx_buffer] = static_cast<int32_t>((frame[i+5+j]) | (frame[i+4+j]*256) | (frame[i+3+j]*65536) | (frame[i+2+j]*16777216));
             j += 8;
@@ -150,13 +138,49 @@ void process_pkt(task_arg* arg) {
         if (idx_buffer > buffer[0].size()) {
             idx_buffer = 0;
         }
-        int debug = idx_buffer % windows_step;
         if(idx_buffer % windows_step == 0){
             process_buffer();
         }
-
         i += frame[i+1] + 2;
     }
+
+}
+
+void process_GOOSE_packet(uint8_t* frame, ssize_t frameSize, int i){
+
+    i += (frame[i+11] == 0x82) ? 17 : (frame[i+11] == 0x81) ? 16 : 15; // Skip SV Header until seqAsdu
+    
+}
+
+void process_pkt(task_arg* arg) {
+
+    // Todo: Chech for PRP Packets, do not duplicate the data from them
+
+    uint8_t* frame = arg->pkt;
+    ssize_t frameSize = arg->pkt_len;
+    sampledValue_info sv = arg->info;
+
+    // -------- Process the frame -------- //
+
+    // Check if the mac exist in the registeredMACs
+    int mac_found = 0;
+    for (int i=0; i<registeredMACs.size(); i++){
+        if (memcmp(frame, registeredMACs[i], 6) == 0){
+            mac_found = 1;
+            break;
+        }
+    }
+    if (!mac_found) return;
+
+    // uint16_t smpCount;
+    int j = 0;
+    int i = (frame[12] == 0x81 && frame[13] == 0x00) ? 16 : 12; // Skip Ethernet and vLAN
+
+    if ((frame[i] == 0x88 && frame[i+1] == 0xba)){ // Check if packet is SV
+        process_SV_packet(frame, frameSize, sv, i);
+    }else if ((frame[i] == 0x88 && frame[i+1] == 0xba)){
+        process_GOOSE_packet(frame, frameSize, i);
+    }else return;
 
 }
 
@@ -193,6 +217,7 @@ void* SnifferThread(void* arg){
     windows_step = (int32_t) (sniffer_conf->sv_info.smpRate * WINDOW_STEP);
     module = &sniffer_conf->phasor_mod;
     ang = &sniffer_conf->phasor_ang;
+    registeredMACs.push_back(sniffer_conf->sv_info.mac_dst);
 
     // Create and Allocate FFTW3
     fft_in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * sv_info_p->smpRate);
@@ -222,9 +247,9 @@ void* SnifferThread(void* arg){
             std::cerr << "Failed to receive message" << std::endl;
             continue;
         }
-        if (memcmp(args_buff[idx_task], sniffer_conf->sv_info.mac_dst, 6) != 0){
-            continue; // Check if packet is for this IED
-        }
+        // if (memcmp(args_buff[idx_task], sniffer_conf->sv_info.mac_dst, 6) != 0){
+        //     continue; // Check if packet is for this IED
+        // }
             
         // Submit task to thread pool
         pool.submit(
