@@ -24,7 +24,7 @@ void* runServer(void *arg){
             std::cerr << "Failed to accept connection" << std::endl;
         }else{
             std::cout << "Connection accepted -- IP: "<< inet_ntoa(address.sin_addr) << std::endl;
-            handle_client((void *)client_socket);
+            handle_client((void *)(&client_socket));
             clients.push_back(client_socket);
             // pthread_create(&curClient->thread, NULL, handle_client, (void *)curClient);
         }

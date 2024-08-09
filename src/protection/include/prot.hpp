@@ -6,13 +6,13 @@
 #include "general_definition.hpp"
 
 #include <vector>
+#include <pthread.h>
 
 void* pioc_phase_thread(void* arg);
 void* pioc_neutral_thread(void* arg);
 void* ptoc_phase_thread(void* arg);
 void* ptoc_neutral_thread(void* arg);
 
-#include <thread>
 
 class ProtectionClass{
 public:
