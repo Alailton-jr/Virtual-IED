@@ -61,29 +61,57 @@ void json_get_goose_config(json& j, GooseClass& go_conf, IED_class& ied_conf) {
 
         for (auto& data_item : item["data"]) {
             if (data_item["block"] == "protection") {
-                if (data_item["name"] == "pioc_phase") {
-                    if (data_item["value"] == "pickup") {
-                        go_conf_item.data_pointers.push_back(&ied_conf.prot.pioc_phase[data_item["level"]].pickup_flag);
-                    } else if (data_item["value"] == "trip") {
-                        go_conf_item.data_pointers.push_back(&ied_conf.prot.pioc_phase[data_item["level"]].trip_flag);
+                if (data_item["name"] == "PIOC") {
+                    int level = data_item["level"];
+                    int i = -1;
+                    pioc_config::pioc_type_e search;
+                    if (data_item["mode"] == "Phase"){
+                        search = pioc_config::pioc_type_e::Phase;
+                    }else{
+                        search = pioc_config::pioc_type_e::Neutral;
                     }
-                } else if (data_item["name"] == "pioc_neutral") {
-                    if (data_item["value"] == "pickup") {
-                        go_conf_item.data_pointers.push_back(&ied_conf.prot.pioc_neutral[data_item["level"]].pickup_flag);
-                    } else if (data_item["value"] == "trip") {
-                        go_conf_item.data_pointers.push_back(&ied_conf.prot.pioc_neutral[data_item["level"]].trip_flag);
+                    for(auto& prot : ied_conf.prot.pioc) {
+                        if (ied_conf.prot.pioc[i].type == search){
+                            if (i == level) break;
+                            else {
+                                if (i==-1) i+=2;
+                                else i++;
+                            }
+                        }
                     }
-                } else if (data_item["name"] == "ptoc_phase") {
+                    if (i != level) continue;
+                    
                     if (data_item["value"] == "pickup") {
-                        go_conf_item.data_pointers.push_back(&ied_conf.prot.ptoc_phase[data_item["level"]].pickup_flag);
+                        go_conf_item.data_pointers.push_back(&ied_conf.prot.pioc[i].pickup_flag);
                     } else if (data_item["value"] == "trip") {
-                        go_conf_item.data_pointers.push_back(&ied_conf.prot.ptoc_phase[data_item["level"]].trip_flag);
+                        go_conf_item.data_pointers.push_back(&ied_conf.prot.pioc[i].trip_flag);
                     }
-                } else if (data_item["name"] == "ptoc_neutral") {
+
+
+                } else if (data_item["name"] == "PTOC") {
+                    int level = data_item["level"];
+                    int i = -1;
+                    pioc_config::pioc_type_e search;
+                    if (data_item["mode"] == "Phase"){
+                        search = pioc_config::pioc_type_e::Phase;
+                    }else{
+                        search = pioc_config::pioc_type_e::Neutral;
+                    }
+                    for(auto& prot : ied_conf.prot.pioc) {
+                        if (ied_conf.prot.pioc[i].type == search){
+                            if (i == level) break;
+                            else {
+                                if (i==-1) i+=2;
+                                else i++;
+                            }
+                        }
+                    }
+                    if (i != level) continue;
+
                     if (data_item["value"] == "pickup") {
-                        go_conf_item.data_pointers.push_back(&ied_conf.prot.ptoc_neutral[data_item["level"]].pickup_flag);
+                        go_conf_item.data_pointers.push_back(&ied_conf.prot.ptoc[i].pickup_flag);
                     } else if (data_item["value"] == "trip") {
-                        go_conf_item.data_pointers.push_back(&ied_conf.prot.ptoc_neutral[data_item["level"]].trip_flag);
+                        go_conf_item.data_pointers.push_back(&ied_conf.prot.ptoc[i].trip_flag);
                     }
                 }
 
@@ -120,31 +148,51 @@ void json_get_protection_config(json& j, ProtectionClass& prot_conf){
     // ]
 
     for (auto& item : j) {
-        std::string type = item["type"];
+        std::string type = item.value("type", "");
+        std::string mode = item.value("mode", "");
 
-        if (type == "pioc_phase") {
-            prot_conf.pioc_phase.push_back({
-                item["pickup"].get<double>(),
-                item["time_dial"].get<double>()
-            });
-        } else if (type == "pioc_neutral") {
-            prot_conf.pioc_neutral.push_back({
-                item["pickup"].get<double>(),
-                item["time_dial"].get<double>()
-            });
-        } else if (type == "ptoc_phase") {
-            prot_conf.ptoc_phase.push_back({
-                item["pickup"].get<double>(),
-                item["time_dial"].get<double>(),
-                item["curve"].get<std::string>()
-            });
-        } else if (type == "ptoc_neutral") {
-            prot_conf.ptoc_neutral.push_back({
-                item["pickup"].get<double>(),
-                item["time_dial"].get<double>(),
-                item["curve"].get<std::string>()
-            });
-        } else {
+        if (type == "PIOC") {
+            pioc_config pioc_conf;
+            pioc_conf.pickup = item["pickup"].get<double>();
+            pioc_conf.time_dial = item["time_dial"].get<double>();
+            if (mode == "Phase"){
+                pioc_conf.type = pioc_conf.Phase;
+            }else if (mode == "Neutral"){
+                pioc_conf.type = pioc_conf.Neutral;
+            }
+            prot_conf.pioc.push_back(pioc_conf);
+        } 
+        
+        else if (type == "PTOC") {
+            ptoc_config ptoc_conf;
+            ptoc_conf.pickup = item["pickup"].get<double>();
+            ptoc_conf.time_dial = item["time_dial"].get<double>();
+            ptoc_conf.curve = item["curve"].get<std::string>();
+            if (mode == "Phase"){
+                ptoc_conf.type = ptoc_config::ptoc_type_e::Phase;
+            }else if (mode == "Neutral"){
+                ptoc_conf.type = ptoc_config::ptoc_type_e::Neutral;
+            }
+            prot_conf.ptoc.push_back(ptoc_conf);
+        }
+
+        else if (type == "PDIS") {
+            pdis_config pdis_conf;
+            pdis_conf.pickup = item["pickup"].get<double>();
+            pdis_conf.time_dial = item["time_dial"].get<double>();
+            if (mode == "Impedance"){
+                pdis_conf.type = pdis_conf.Impedance;
+            }else if (mode == "Reactance"){
+                pdis_conf.type = pdis_conf.Reactance;
+            }else if (mode == "Admittance"){
+                pdis_conf.type = pdis_conf.Admittance;
+                pdis_conf.torque = item["rTorque"].get<double>();
+            }
+            
+            prot_conf.pdis.push_back(pdis_conf);
+        } 
+        
+        else {
             std::cerr << "Unknown protection type: " << type << std::endl;
         }
     }
@@ -203,11 +251,9 @@ void load_config(IED_class& conf, std::string file_name) {
     file.close();
 }
 
-
 int main(int, char**){
 
     IED_class Ied;
-
     load_config(Ied, "files/ied_config.json");
 
     Ied.init();
@@ -217,10 +263,25 @@ int main(int, char**){
 
     std::vector<double> times;
 
-    for (int _ =0; _<2;_++){
-        Ied.sniffer.phasor_mod[2] = 0;
-        Ied.sniffer.phasor_mod[3] = 0;
+    Ied.sniffer.phasor_mod[0] = 0;
+    Ied.sniffer.phasor_mod[1] = 0;
+    Ied.sniffer.phasor_mod[2] = 0;
+    Ied.sniffer.phasor_mod[3] = 0;
 
+    Ied.sniffer.phasor_mod[4] = 1000;
+    Ied.sniffer.phasor_mod[5] = 1000;
+    Ied.sniffer.phasor_mod[6] = 1000;
+    Ied.sniffer.phasor_mod[7] = 0;
+
+    for (int _ =0; _<5;_++){
+        // dis
+        Ied.sniffer.phasor_mod[0] = 0;
+        Ied.sniffer.phasor_ang[0] = 0;
+        Ied.sniffer.phasor_mod[4] = 1000;
+        Ied.sniffer.phasor_ang[4] = 0;
+        // neutral
+        Ied.sniffer.phasor_mod[3] = 0;
+    
         struct timespec t0, t1;
         clock_gettime(CLOCK_MONOTONIC, &t0);
         double tdif;
@@ -228,27 +289,35 @@ int main(int, char**){
             clock_gettime(CLOCK_MONOTONIC, &t1);
             pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
             tdif = (t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9;
-        }while (tdif < 2);
-
+        }while (tdif < 1);
 
         clock_gettime(CLOCK_MONOTONIC, &t0);
-        Ied.sniffer.phasor_mod[2] = 1200;
-        Ied.sniffer.phasor_mod[3] = 1200;
+
+        // Distance
+        // Ied.sniffer.phasor_mod[0] = 4000;
+        // Ied.sniffer.phasor_ang[0] = 0;
+
+        // PTOC & PIOC
+        Ied.sniffer.phasor_mod[0] = 900;
+        Ied.sniffer.phasor_ang[0] = 0;
+
+        // neutral
+        Ied.sniffer.phasor_mod[3] = 4000;
+
         pthread_mutex_lock(&Ied.sniffer.sniffer_mutex);
         pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
         pthread_mutex_unlock(&Ied.sniffer.sniffer_mutex);
-        while(Ied.prot.pioc_phase[0].trip_flag != 1){
+        while(Ied.prot.ptoc[0].trip_flag != 1){
             continue;
         }
         clock_gettime(CLOCK_MONOTONIC, &t1);
         std::cout << (t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9 << std::endl;
         times.push_back((t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec)/1e9);
     }
-    
-    sleep(10);
 
     // Get mean value
-    std::cout << "mean: "<< std::accumulate(times.begin(), times.end(), 0.0)/times.size() << std::endl;
+    std::cout << std::fixed << std::setprecision(5);
+    std::cout << "error: " << abs(std::accumulate(times.begin(), times.end(), 0.0)/times.size() - 0.8)/0.8*100 << "%" << std::endl;
 
     // ied_conf.stopIED();
     // Ied.sniffer.stopThread();

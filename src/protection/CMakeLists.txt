@@ -4,10 +4,10 @@ project(protection)
 
 
 add_library(${PROJECT_NAME}
-    src/pioc_phase.cpp
-    src/pioc_neutral.cpp 
-    src/ptoc_phase.cpp
-    src/ptoc_neutral.cpp 
+    src/pioc.cpp
+    src/ptoc.cpp
+    src/pdis.cpp
+    src/trip_time_opt.cpp
 )
 
 target_include_directories( ${PROJECT_NAME}

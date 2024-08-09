@@ -11,23 +11,33 @@
     },
     "Protection": [
         {
-            "type": "pioc_phase",
+            "type": "PIOC",
+            "mode": "Phase",
             "pickup": 800,
-            "time_dial": 0.2
+            "time_dial": 0.8
         },
         {
-            "type": "pioc_neutral",
+            "type": "PDIS",
+            "mode": "Impedance",
+            "pickup": 20,
+            "time_dial": 0.8
+        },
+        {
+            "type": "PIOC",
+            "mode": "Neutral",
             "pickup": 200,
             "time_dial": 0.8
         },
         {
-            "type": "ptoc_phase",
+            "type": "PTOC",
+            "mode": "Phase",
             "pickup": 300,
             "time_dial": 0.8,
             "curve": "U1"
         },
         {
-            "type": "ptoc_neutral",
+            "type": "PTOC",
+            "mode": "Neutral",
             "pickup": 300,
             "time_dial": 0.8,
             "curve": "U1"
@@ -48,7 +58,8 @@
             "data":[
                 {
                     "block": "protection",
-                    "name": "pioc_phase",
+                    "name": "PIOC",
+                    "mode": "Phase",
                     "value": "pickup",
                     "level": 0,
                     "type": "Boolean"
