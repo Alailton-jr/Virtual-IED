@@ -4,6 +4,9 @@
 #include "ptoc.hpp"
 #include "pioc.hpp"
 #include "pdis.hpp"
+#include "ptov.hpp"
+#include "ptuv.hpp"
+#include "pdir.hpp"
 #include "general_definition.hpp"
 
 #include <vector>
@@ -20,6 +23,10 @@ public:
     std::vector<pioc_config> pioc;
     std::vector<ptoc_config> ptoc;
     std::vector<pdis_config> pdis;
+    std::vector<ptuv_config> ptuv;
+    std::vector<ptov_config> ptov;    
+    std::vector<pdir_config> pdir;
+
 
     pthread_cond_t prot_cond;
     pthread_mutex_t prot_mutex;
@@ -89,10 +96,51 @@ public:
             pthread_setschedparam(this->pdis[i].thd, SCHED_FIFO, &param);
         }
 
+        // PTUV
+        for (int i=0;i<this->ptuv.size();i++){
+            this->ptuv[i].sniffer_mutex = this->sniffer_mutex;
+            this->ptuv[i].sniffer_cond = this->sniffer_cond;
+            this->ptuv[i].prot_cond = &this->prot_cond;
+            this->ptuv[i].prot_mutex = &this->prot_mutex;
+            this->ptuv[i].module = this->phasor_mod;
+            this->ptuv[i].stop = 0;
+
+            pthread_create(&this->ptuv[i].thd, NULL, ptuv_thread, static_cast<void*>(&this->ptuv[i]));
+            pthread_setschedparam(this->ptuv[i].thd, SCHED_FIFO, &param);
+        }
+
+        // PTOV
+        for (int i=0;i<this->ptov.size();i++){
+            this->ptov[i].sniffer_mutex = this->sniffer_mutex;
+            this->ptov[i].sniffer_cond = this->sniffer_cond;
+            this->ptov[i].prot_cond = &this->prot_cond;
+            this->ptov[i].prot_mutex = &this->prot_mutex;
+            this->ptov[i].module = this->phasor_mod;
+            this->ptov[i].stop = 0;
+
+            pthread_create(&this->ptov[i].thd, NULL, ptov_thread, static_cast<void*>(&this->ptov[i]));
+            pthread_setschedparam(this->ptov[i].thd, SCHED_FIFO, &param);
+        }
+
+        // PDIR
+        for (int i=0;i<this->pdir.size();i++){
+            this->pdir[i].sniffer_mutex = this->sniffer_mutex;
+            this->pdir[i].sniffer_cond = this->sniffer_cond;
+            this->pdir[i].prot_cond = &this->prot_cond;
+            this->pdir[i].prot_mutex = &this->prot_mutex;
+            this->pdir[i].module = this->phasor_mod;
+            this->pdir[i].angle = this->phasor_ang;
+            this->pdir[i].stop = 0;
+
+            pthread_create(&this->pdir[i].thd, NULL, pdir_thread, static_cast<void*>(&this->pdir[i]));
+            pthread_setschedparam(this->pdir[i].thd, SCHED_FIFO, &param);
+        }
+
     }
 
     void stopThread(){
 
+        // PIOC
         for (int i=0;i<this->pioc.size();i++){
             this->pioc[i].stop = 1;
             while(this->pioc[i].running){
@@ -100,6 +148,7 @@ public:
             }
         }
 
+        //PTOC
         for (int i=0;i<this->ptoc.size();i++){
             this->ptoc[i].stop = 1;
             while(this->ptoc[i].running){
@@ -107,6 +156,7 @@ public:
             }
         }
 
+        // PDIS
         for (int i=0;i<this->pdis.size();i++){
             this->pdis[i].stop = 1;
             while(this->pdis[i].running){
@@ -114,15 +164,48 @@ public:
             }
         }
 
+        // PTUV
+        for (int i=0;i<this->ptuv.size();i++){
+            this->ptuv[i].stop = 1;
+            while(this->ptuv[i].running){
+                pthread_cond_broadcast(this->ptuv[i].sniffer_cond);
+            }
+        }
+
+        // PTOV
+        for (int i=0;i<this->ptov.size();i++){
+            this->ptov[i].stop = 1;
+            while(this->ptov[i].running){
+                pthread_cond_broadcast(this->ptov[i].sniffer_cond);
+            }
+        }
+
+        // PDIR
+        for (int i=0;i<this->pdir.size();i++){
+            this->pdir[i].stop = 1;
+            while(this->pdir[i].running){
+                pthread_cond_broadcast(this->pdir[i].sniffer_cond);
+            }
+        }
+
         // Join
-        for (int i=0;i<this->pioc.size();i++){
+        for (int i=0;i<this->pioc.size();i++){ // PIOC
             pthread_join(this->pioc[i].thd, NULL);
         }
-        for (int i=0;i<this->ptoc.size();i++){
+        for (int i=0;i<this->ptoc.size();i++){ // PTOC
             pthread_join(this->ptoc[i].thd, NULL);
         }
-        for (int i=0;i<this->pdis.size();i++){
+        for (int i=0;i<this->pdis.size();i++){ // PDIS
             pthread_join(this->pdis[i].thd, NULL);
+        }
+        for (int i=0;i<this->ptuv.size();i++){ // PTUV
+            pthread_join(this->ptuv[i].thd, NULL);
+        }
+        for (int i=0;i<this->ptov.size();i++){ // PTOV
+            pthread_join(this->ptov[i].thd, NULL);
+        }
+        for (int i=0;i<this->pdir.size();i++){ // PDIR
+            pthread_join(this->pdir[i].thd, NULL);
         }
 
     }

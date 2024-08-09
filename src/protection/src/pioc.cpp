@@ -3,7 +3,6 @@
 #include "trip_time_opt.hpp"
 
 
-
 struct pioc_pickup_plan {
     void (*_execute)(pioc_pickup_plan* plan);
     void execute() {

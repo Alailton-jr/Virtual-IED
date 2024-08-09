@@ -17,6 +17,15 @@
             "time_dial": 0.8
         },
         {
+            "type": "PDIR",
+            "mode": "Phase",
+            "dir_mode": "Quadrant",
+            "direction": "Forward",
+            "pickup": 200,
+            "time_dial": 0,
+            "torque": 0.1666666666666
+        },
+        {
             "type": "PDIS",
             "mode": "Impedance",
             "pickup": 20,

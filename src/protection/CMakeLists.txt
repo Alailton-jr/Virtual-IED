@@ -7,6 +7,9 @@ add_library(${PROJECT_NAME}
     src/pioc.cpp
     src/ptoc.cpp
     src/pdis.cpp
+    src/ptov.cpp
+    src/ptuv.cpp
+    src/pdir.cpp
     src/trip_time_opt.cpp
 )
 

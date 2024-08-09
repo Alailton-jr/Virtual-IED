@@ -127,71 +127,76 @@ void json_get_goose_config(json& j, GooseClass& go_conf, IED_class& ied_conf) {
 
 void json_get_protection_config(json& j, ProtectionClass& prot_conf){
 
-    // Example
-    // "Protection": [
-    //     {
-    //         "type": "pioc_phase",
-    //         "pickup": 800,
-    //         "time_dial": 0.8
-    //     },
-    //     {
-    //         "type": "pioc_neutral",
-    //         "pickup": 200,
-    //         "time_dial": 0.8
-    //     },
-    //     {
-    //         "type": "ptoc_phase",
-    //         "pickup": 300,
-    //         "time_dial": 0.8,
-    //         "curve": "U1"
-    //     }
-    // ]
-
     for (auto& item : j) {
         std::string type = item.value("type", "");
         std::string mode = item.value("mode", "");
 
         if (type == "PIOC") {
-            pioc_config pioc_conf;
-            pioc_conf.pickup = item["pickup"].get<double>();
-            pioc_conf.time_dial = item["time_dial"].get<double>();
+            pioc_config conf;
+            conf.pickup = item["pickup"].get<double>();
+            conf.time_dial = item["time_dial"].get<double>();
             if (mode == "Phase"){
-                pioc_conf.type = pioc_conf.Phase;
+                conf.type = conf.Phase;
             }else if (mode == "Neutral"){
-                pioc_conf.type = pioc_conf.Neutral;
+                conf.type = conf.Neutral;
             }
-            prot_conf.pioc.push_back(pioc_conf);
+            prot_conf.pioc.push_back(conf);
         } 
         
         else if (type == "PTOC") {
-            ptoc_config ptoc_conf;
-            ptoc_conf.pickup = item["pickup"].get<double>();
-            ptoc_conf.time_dial = item["time_dial"].get<double>();
-            ptoc_conf.curve = item["curve"].get<std::string>();
+            ptoc_config conf;
+            conf.pickup = item["pickup"].get<double>();
+            conf.time_dial = item["time_dial"].get<double>();
+            conf.curve = item["curve"].get<std::string>();
             if (mode == "Phase"){
-                ptoc_conf.type = ptoc_config::ptoc_type_e::Phase;
+                conf.type = ptoc_config::ptoc_type_e::Phase;
             }else if (mode == "Neutral"){
-                ptoc_conf.type = ptoc_config::ptoc_type_e::Neutral;
+                conf.type = ptoc_config::ptoc_type_e::Neutral;
             }
-            prot_conf.ptoc.push_back(ptoc_conf);
+            prot_conf.ptoc.push_back(conf);
         }
 
         else if (type == "PDIS") {
-            pdis_config pdis_conf;
-            pdis_conf.pickup = item["pickup"].get<double>();
-            pdis_conf.time_dial = item["time_dial"].get<double>();
+            pdis_config conf;
+            conf.pickup = item["pickup"].get<double>();
+            conf.time_dial = item["time_dial"].get<double>();
             if (mode == "Impedance"){
-                pdis_conf.type = pdis_conf.Impedance;
+                conf.type = conf.Impedance;
             }else if (mode == "Reactance"){
-                pdis_conf.type = pdis_conf.Reactance;
+                conf.type = conf.Reactance;
             }else if (mode == "Admittance"){
-                pdis_conf.type = pdis_conf.Admittance;
-                pdis_conf.torque = item["rTorque"].get<double>();
+                conf.type = conf.Admittance;
+                conf.torque = item["rTorque"].get<double>();
             }
             
-            prot_conf.pdis.push_back(pdis_conf);
+            prot_conf.pdis.push_back(conf);
         } 
         
+        else if (type == "PDIR"){
+            pdir_config conf;
+            conf.pickup = item["pickup"].get<double>();
+            conf.time_dial = item["time_dial"].get<double>();
+            conf.torque = item["torque"].get<double>();
+
+            if (item["direction"] == "Forward"){
+                conf.direction = pdir_config::direction_e::Forward;
+            }else {
+                conf.direction = pdir_config::direction_e::Reverse;
+            }
+
+            if (item["dir_mode"] == "Quadrant"){
+                conf.dir_mode = pdir_config::dir_mode_e::Quadrant;
+            }else{}
+
+            if (mode == "Phase"){
+                conf.type = pdir_config::pioc_type_e::Phase;
+            }else{
+                conf.type = pdir_config::pioc_type_e::Neutral;
+            }
+
+            prot_conf.pdir.push_back(conf);
+        }
+
         else {
             std::cerr << "Unknown protection type: " << type << std::endl;
         }
@@ -251,16 +256,8 @@ void load_config(IED_class& conf, std::string file_name) {
     file.close();
 }
 
-int main(int, char**){
-
-    IED_class Ied;
-    load_config(Ied, "files/ied_config.json");
-
-    Ied.init();
-    // Ied.sniffer.startThread();
-    Ied.prot.startThread();
-    Ied.goose.startThread();
-
+void test_pioc(IED_class &Ied){
+    
     std::vector<double> times;
 
     Ied.sniffer.phasor_mod[0] = 0;
@@ -272,6 +269,8 @@ int main(int, char**){
     Ied.sniffer.phasor_mod[5] = 1000;
     Ied.sniffer.phasor_mod[6] = 1000;
     Ied.sniffer.phasor_mod[7] = 0;
+
+    
 
     for (int _ =0; _<5;_++){
         // dis
@@ -318,6 +317,62 @@ int main(int, char**){
     // Get mean value
     std::cout << std::fixed << std::setprecision(5);
     std::cout << "error: " << abs(std::accumulate(times.begin(), times.end(), 0.0)/times.size() - 0.8)/0.8*100 << "%" << std::endl;
+
+}
+
+void test_pdir(IED_class &Ied){
+
+    // Test PDIR
+    Ied.sniffer.phasor_mod[0] = 400;
+    Ied.sniffer.phasor_mod[1] = 400;
+    Ied.sniffer.phasor_mod[2] = 400;
+
+    Ied.sniffer.phasor_mod[4] = 13800;
+    Ied.sniffer.phasor_mod[5] = 13800;
+    Ied.sniffer.phasor_mod[6] = 13800;
+
+    Ied.sniffer.phasor_ang[0] = 0;
+    Ied.sniffer.phasor_ang[1] = 2.0/3.0 * M_PI;
+    Ied.sniffer.phasor_ang[2] = -2.0/3.0 * M_PI;
+
+    Ied.sniffer.phasor_ang[4] = 0;
+    Ied.sniffer.phasor_ang[5] = 2.0/3.0 * M_PI;
+    Ied.sniffer.phasor_ang[6] = -2.0/3.0 * M_PI;
+    
+    pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
+    sleep(0.4);
+    pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
+    sleep(0.4);
+
+    std::cout << Ied.prot.pdir[0].pickup_flag << std::endl;
+
+    Ied.sniffer.phasor_ang[0] = -1 * M_PI;
+    Ied.sniffer.phasor_ang[1] = (2.0/3.0 * M_PI) - M_PI;
+    Ied.sniffer.phasor_ang[2] = (-2.0/3.0 * M_PI) - M_PI;
+
+    Ied.sniffer.phasor_ang[4] = 0;
+    Ied.sniffer.phasor_ang[5] = 2.0/3.0 * M_PI;
+    Ied.sniffer.phasor_ang[6] = -2.0/3.0 * M_PI;
+
+    pthread_cond_broadcast(&Ied.sniffer.sniffer_cond);
+
+    sleep(0.4);
+
+    std::cout << Ied.prot.pdir[0].pickup_flag << std::endl;
+
+}
+
+int main(int, char**){
+
+    IED_class Ied;
+    load_config(Ied, "files/ied_config.json");
+
+    Ied.init();
+    // Ied.sniffer.startThread();
+    Ied.prot.startThread();
+    Ied.goose.startThread();
+
+    test_pdir(Ied);
 
     // ied_conf.stopIED();
     // Ied.sniffer.stopThread();
