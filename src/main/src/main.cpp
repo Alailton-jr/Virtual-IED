@@ -368,15 +368,16 @@ int main(int, char**){
     load_config(Ied, "files/ied_config.json");
 
     Ied.init();
-    // Ied.sniffer.startThread();
-    Ied.prot.startThread();
+    Ied.sniffer.startThread();
+    // Ied.prot.startThread();
     Ied.goose.startThread();
 
-    test_pdir(Ied);
+    // test_pdir(Ied);
 
-    // ied_conf.stopIED();
+    sleep(180);
+
     // Ied.sniffer.stopThread();
-    Ied.prot.stopThread();
+    // Ied.prot.stopThread();
     Ied.goose.stopThread();
 
     return 0;

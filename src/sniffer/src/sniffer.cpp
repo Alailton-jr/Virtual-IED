@@ -23,6 +23,8 @@
 #include <fftw3.h>
 #include <math.h>
 
+#include <fstream>
+#include <sstream>
 
 std::vector<std::vector<int32_t>> buffer;
 int32_t idx_buffer;
@@ -60,27 +62,37 @@ void process_buffer(){
     
     // save_to_csv("Test.csv");
     // std::ofstream file("Test2.csv");
-    // for (int i=0; i<noChannels; i++){
-    //     for (int j=0; j<smpRate; j++){
-    //         idx = (idx_buffer - smpRate) + j;
+    // for (int i=0; i<sv_info_p->noChannels; i++){
+    //     for (int j=0; j<sv_info_p->smpRate; j++){
+    //         idx = (idx_buffer - sv_info_p->smpRate) + j;
     //         if (idx < 0) idx += buffer[0].size();
     //         file << buffer[i][idx];
-    //         if (j < smpRate - 1) file << ",";
+    //         if (j < sv_info_p->smpRate - 1) file << ",";
     //     }
     //     file << "\n";
     // }
     // file.close();
-    // if(debug_count == 2) exit(0);
+    // if(debug_count == 8) exit(0);
 
+    double angRef = (*ang)[idx_angRef];
     for (int i=0; i<sv_info_p->noChannels; i++){
-        (*ang)[i] -= (*ang)[idx_angRef];
+        (*ang)[i] = (*ang)[i] - angRef;
     }
 
     // Debug
     debug_count++;
-    if (debug_count > 100){
+    if (debug_count > 1000){
         for (int i=0; i<sv_info_p->noChannels; i++){
-            std::cout << (*module)[i] << "|_" << (*ang)[i]*180/M_PI << std::endl;
+            if ((*ang)[i] > M_PI){
+                (*ang)[i] = 2*M_PI - (*ang)[i];
+                std::cout << (*module)[i] << "|_" << (*ang)[i]*180/M_PI << std::endl;
+            }else if ((*ang)[i] < -M_PI){
+                (*ang)[i] = 2*M_PI + (*ang)[i];
+                std::cout << (*module)[i] << "|_" << (*ang)[i]*180/M_PI << std::endl;
+            }else{
+                std::cout << (*module)[i] << "|_" << (*ang)[i]*180/M_PI << std::endl;
+            }
+            
         }
         debug_count = 0;
         std::cout << " " << std::endl;

@@ -4,10 +4,10 @@
 #include "trip_time_opt.hpp"
 
 struct pdir_pickup_plan{
-    void (*_execute)(pdir_pickup_plan* plan);
-    void execute(){
-        _execute(this);
-    }
+        void (*_execute)(pdir_pickup_plan* plan);
+        void execute(){
+            _execute(this);
+        }
 
     double pickup;
     double time_delay;

@@ -1,7 +1,7 @@
 {
     "SampledValue": {
-        "svID": "SV_Bus05",
-        "mac_dst": [1, 12, 205, 1, 0, 4],
+        "svID": "SV_01",
+        "mac_dst": [1, 12, 205, 4, 0, 1],
         "channel_conf": [0, 1, 2, 3, 4, 5, 6, 7],
         "vLan_priority": 4,
         "vLan_id": 100,
