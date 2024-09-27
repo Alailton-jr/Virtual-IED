@@ -19,13 +19,13 @@ install:
 	sudo apt install -y $(PACKAGES)
 
 build:
-	if [ -d build ]; then echo "Removing existing build folder"; rm -rf build; fi
+	@if [ -d build ]; then echo "Removing existing build folder"; rm -rf build; fi
 	@echo "Building the project..."
-	cmake -DCMAKE_INSTALL_PREFIX=/root/Virtual-IED/build/install/Main -S/root/Virtual-IED -B/root/Virtual-IED/build -G Ninja
-	cmake --build build/ --target vIED
+	cmake -DCMAKE_INSTALL_PREFIX=$(BUILD_DIR)/install/Main -S. -B$(BUILD_DIR) -G Ninja
+	cmake --build $(BUILD_DIR) --target vIED
 
 clean:
 	@echo "Cleaning up build files..."
 	rm -rf $(BUILD_DIR)
 
-.PHONY: install
+.PHONY: install build clean
