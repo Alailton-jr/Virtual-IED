@@ -71,11 +71,12 @@ void json_get_goose_config(json& j, GooseClass& go_conf, IED_class& ied_conf) {
                         search = pioc_config::pioc_type_e::Neutral;
                     }
                     for(auto& prot : ied_conf.prot.pioc) {
-                        if (ied_conf.prot.pioc[i].type == search){
+                        if (prot.type == search){
                             if (i == level) break;
                             else {
-                                if (i==-1) i+=2;
-                                else i++;
+                                // if (i==-1) i+=2;
+                                // else i++;
+                                i++;
                             }
                         }
                     }
@@ -98,7 +99,7 @@ void json_get_goose_config(json& j, GooseClass& go_conf, IED_class& ied_conf) {
                         search = pioc_config::pioc_type_e::Neutral;
                     }
                     for(auto& prot : ied_conf.prot.pioc) {
-                        if (ied_conf.prot.pioc[i].type == search){
+                        if (prot.type == search){
                             if (i == level) break;
                             else {
                                 if (i==-1) i+=2;
@@ -136,9 +137,9 @@ void json_get_protection_config(json& j, ProtectionClass& prot_conf){
             conf.pickup = item["pickup"].get<double>();
             conf.time_dial = item["time_dial"].get<double>();
             if (mode == "Phase"){
-                conf.type = conf.Phase;
+                conf.type = pioc_config::pioc_type_e::Phase;
             }else if (mode == "Neutral"){
-                conf.type = conf.Neutral;
+                conf.type = pioc_config::pioc_type_e::Neutral;
             }
             prot_conf.pioc.push_back(conf);
         } 
@@ -369,15 +370,15 @@ int main(int, char**){
 
     Ied.init();
     Ied.sniffer.startThread();
-    // Ied.prot.startThread();
+    Ied.prot.startThread();
     Ied.goose.startThread();
 
     // test_pdir(Ied);
 
-    sleep(180);
+    sleep(900);
 
-    // Ied.sniffer.stopThread();
-    // Ied.prot.stopThread();
+    Ied.sniffer.stopThread();
+    Ied.prot.stopThread();
     Ied.goose.stopThread();
 
     return 0;

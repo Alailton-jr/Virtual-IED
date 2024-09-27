@@ -16,7 +16,41 @@
             "pickup": 4000,
             "time_dial": 0.3
         }
-        
+        {
+            "type": "PDIR",
+            "mode": "Phase",
+            "dir_mode": "Quadrant",
+            "direction": "Forward",
+            "pickup": 200,
+            "time_dial": 0,
+            "torque": 0.1666666666666
+        },
+        {
+            "type": "PDIS",
+            "mode": "Impedance",
+            "pickup": 20,
+            "time_dial": 0.8
+        },
+        {
+            "type": "PIOC",
+            "mode": "Neutral",
+            "pickup": 200,
+            "time_dial": 0.8
+        },
+        {
+            "type": "PTOC",
+            "mode": "Phase",
+            "pickup": 300,
+            "time_dial": 0.8,
+            "curve": "U1"
+        },
+        {
+            "type": "PTOC",
+            "mode": "Neutral",
+            "pickup": 300,
+            "time_dial": 0.8,
+            "curve": "U1"
+        }
     ],
     "Goose":[
         {

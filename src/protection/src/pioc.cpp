@@ -90,8 +90,10 @@ void* pioc_thread(void* arg){
             pthread_cond_broadcast(conf->prot_cond);
         }
         if (conf->pickup_flag != 0 && conf->trip_flag != 1){
+            pthread_cond_broadcast(conf->prot_cond);
             pthread_cond_timedwait(conf->sniffer_cond, conf->sniffer_mutex, &trip_plan.time2Wait);
         }else{
+            pthread_cond_broadcast(conf->prot_cond);
             pthread_cond_wait(conf->sniffer_cond, conf->sniffer_mutex);
         }
         pthread_mutex_unlock(conf->sniffer_mutex);

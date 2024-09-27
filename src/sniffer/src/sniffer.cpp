@@ -38,6 +38,9 @@ int updateFlag = 0;
 std::vector<double>* module;
 std::vector<double>* ang;
 
+pthread_mutex_t* mutex;
+pthread_cond_t* cond;
+
 std::vector<uint8_t*> registeredMACs;
 
 int debug_count=0;
@@ -97,6 +100,8 @@ void process_buffer(){
         debug_count = 0;
         std::cout << " " << std::endl;
     }
+
+    pthread_cond_broadcast(cond);
 
     return;
 }
@@ -205,7 +210,9 @@ void* watchdog_thread(void* arg){
             for(int i=0;i<sv_info_p->noChannels;i++){
                 (*module)[i] = 0;
                 (*ang)[i] = 0; 
+                idx_buffer = 0;
             }
+            pthread_cond_broadcast(cond);
         }
         std::this_thread::sleep_for(microseconds(10*208));
     }
@@ -216,7 +223,11 @@ void* SnifferThread(void* arg){
     using namespace std::chrono;
     auto sniffer_conf = static_cast<SnifferClass*>(arg);
 
+    
+
     sniffer_conf->running = 1;
+    mutex = &sniffer_conf->sniffer_mutex;
+    cond = &sniffer_conf->sniffer_cond;
 
     // Buffer for SV data captured
     buffer = std::vector(
