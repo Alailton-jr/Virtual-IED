@@ -29,6 +29,7 @@ void* runServer(void *arg){
             // pthread_create(&curClient->thread, NULL, handle_client, (void *)curClient);
         }
     }
+    return nullptr;
 }
 
     

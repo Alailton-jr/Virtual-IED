@@ -1,4 +1,3 @@
-
 PACKAGES = \
     cmake \
     build-essential \
@@ -12,20 +11,18 @@ PACKAGES = \
 BUILD_DIR = build
 CMAKE_PRESET = Main 
 
-all: install configure build
+all: install build
 
 install:
 	@echo "Installing required packages..."
 	sudo apt update
 	sudo apt install -y $(PACKAGES)
 
-configure:
-	@echo "Configuring the CMake project..."
-	cmake --preset $(CMAKE_PRESET)
-
 build:
+	if [ -d build ]; then echo "Removing existing build folder"; rm -rf build; fi
 	@echo "Building the project..."
-	cmake --build $(BUILD_DIR)
+	cmake -DCMAKE_INSTALL_PREFIX=/root/Virtual-IED/build/install/Main -S/root/Virtual-IED -B/root/Virtual-IED/build -G Ninja
+	cmake --build build/ --target vIED
 
 clean:
 	@echo "Cleaning up build files..."
