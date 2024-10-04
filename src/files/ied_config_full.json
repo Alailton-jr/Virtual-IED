@@ -15,7 +15,7 @@
             "mode": "Phase",
             "pickup": 4000,
             "time_dial": 0.3
-        }
+        },
         {
             "type": "PDIR",
             "mode": "Phase",

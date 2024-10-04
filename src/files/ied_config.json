@@ -15,8 +15,29 @@
             "mode": "Phase",
             "pickup": 4000,
             "time_dial": 0.3
+        },
+        {
+            "type": "PTOC",
+            "mode": "Phase",
+            "pickup": 300,
+            "time_dial": 0.8,
+            "curve": "U1"
+        },
+        {
+            "type": "PDIS",
+            "mode": "Impedance",
+            "pickup": 20,
+            "time_dial": 0.8
+        },
+        {
+            "type": "PDIR",
+            "mode": "Phase",
+            "dir_mode": "Quadrant",
+            "direction": "Forward",
+            "pickup": 200,
+            "time_dial": 0,
+            "torque": 0.1666666666666
         }
-        
     ],
     "Goose":[
         {
@@ -35,7 +56,44 @@
                     "block": "protection",
                     "name": "PIOC",
                     "mode": "Phase",
-                    "value": "pickup",
+                    "value": "trip",
+                    "level": 0,
+                    "type": "Boolean"
+                },
+                {
+                    "block": "protection",
+                    "name": "PTOC",
+                    "mode": "Phase",
+                    "value": "trip",
+                    "level": 0,
+                    "type": "Boolean"
+                },
+                {
+                    "block": "protection",
+                    "name": "PTOV",
+                    "value": "trip",
+                    "level": 0,
+                    "type": "Boolean"
+                },
+                {
+                    "block": "protection",
+                    "name": "PTUV",
+                    "value": "trip",
+                    "level": 0,
+                    "type": "Boolean"
+                },
+                {
+                    "block": "protection",
+                    "name": "PDIS",
+                    "value": "trip",
+                    "level": 0,
+                    "type": "Boolean"
+                },
+                {
+                    "block": "protection",
+                    "name": "PDIR",
+                    "mode": "Phase",
+                    "value": "trip",
                     "level": 0,
                     "type": "Boolean"
                 }

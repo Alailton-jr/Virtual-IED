@@ -1,6 +1,6 @@
 #include "trip_time_opt.hpp"
 
-inline void get_inverse_time_curve_coef(std::string curve_name, double &a, double& b, double &c){
+void get_inverse_time_curve_coef(std::string curve_name, double &a, double& b, double &c){
 
     if (curve_name == "U1") {
         a = 0.0226;

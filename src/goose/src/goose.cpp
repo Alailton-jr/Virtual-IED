@@ -330,6 +330,7 @@ void* run_goose_sender(void* arg){
     return nullptr;
 }
 
+// Debug and test
 int main_goose() {
 
     int flag1, flag2, flag3;

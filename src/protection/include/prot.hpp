@@ -65,6 +65,8 @@ public:
             this->pioc[i].module = this->phasor_mod;
             this->pioc[i].stop = 0;
 
+            std::cout << "Starting PIOC Thread " << i << std::endl;
+
             pthread_create(&this->pioc[i].thd, NULL, pioc_thread, static_cast<void*>(&this->pioc[i]));
             pthread_setschedparam(this->pioc[i].thd, SCHED_FIFO, &param);
         }
@@ -77,6 +79,8 @@ public:
             this->ptoc[i].prot_mutex = &this->prot_mutex;
             this->ptoc[i].module = this->phasor_mod;
             this->ptoc[i].stop = 0;
+
+            std::cout << "Starting PTOC Thread " << i << std::endl;
 
             pthread_create(&this->ptoc[i].thd, NULL, ptoc_thread, static_cast<void*>(&this->ptoc[i]));
             pthread_setschedparam(this->ptoc[i].thd, SCHED_FIFO, &param);
@@ -92,6 +96,8 @@ public:
             this->pdis[i].angle = this->phasor_ang;
             this->pdis[i].stop = 0;
 
+            std::cout << "Starting PDIS Thread " << i << std::endl;
+
             pthread_create(&this->pdis[i].thd, NULL, pdis_thread, static_cast<void*>(&this->pdis[i]));
             pthread_setschedparam(this->pdis[i].thd, SCHED_FIFO, &param);
         }
@@ -105,6 +111,8 @@ public:
             this->ptuv[i].module = this->phasor_mod;
             this->ptuv[i].stop = 0;
 
+            std::cout << "Starting PTUV Thread " << i << std::endl;
+
             pthread_create(&this->ptuv[i].thd, NULL, ptuv_thread, static_cast<void*>(&this->ptuv[i]));
             pthread_setschedparam(this->ptuv[i].thd, SCHED_FIFO, &param);
         }
@@ -117,6 +125,8 @@ public:
             this->ptov[i].prot_mutex = &this->prot_mutex;
             this->ptov[i].module = this->phasor_mod;
             this->ptov[i].stop = 0;
+
+            std::cout << "Starting PTOV Thread " << i << std::endl;
 
             pthread_create(&this->ptov[i].thd, NULL, ptov_thread, static_cast<void*>(&this->ptov[i]));
             pthread_setschedparam(this->ptov[i].thd, SCHED_FIFO, &param);
@@ -132,6 +142,8 @@ public:
             this->pdir[i].angle = this->phasor_ang;
             this->pdir[i].stop = 0;
 
+            std::cout << "Starting PDIR Thread " << i << std::endl;
+
             pthread_create(&this->pdir[i].thd, NULL, pdir_thread, static_cast<void*>(&this->pdir[i]));
             pthread_setschedparam(this->pdir[i].thd, SCHED_FIFO, &param);
         }
@@ -146,6 +158,7 @@ public:
             while(this->pioc[i].running){
                 pthread_cond_broadcast(this->pioc[i].sniffer_cond);
             }
+            std::cout << "Stopping PIOC Thread " << i << std::endl;
         }
 
         //PTOC
@@ -154,6 +167,7 @@ public:
             while(this->ptoc[i].running){
                 pthread_cond_broadcast(this->ptoc[i].sniffer_cond);
             }
+            std::cout << "Stopping PTOC Thread " << i << std::endl;
         }
 
         // PDIS
@@ -162,6 +176,7 @@ public:
             while(this->pdis[i].running){
                 pthread_cond_broadcast(this->pdis[i].sniffer_cond);
             }
+            std::cout << "Stopping PDIS Thread " << i << std::endl;
         }
 
         // PTUV
@@ -170,6 +185,7 @@ public:
             while(this->ptuv[i].running){
                 pthread_cond_broadcast(this->ptuv[i].sniffer_cond);
             }
+            std::cout << "Stopping PTUV Thread " << i << std::endl;
         }
 
         // PTOV
@@ -178,6 +194,7 @@ public:
             while(this->ptov[i].running){
                 pthread_cond_broadcast(this->ptov[i].sniffer_cond);
             }
+            std::cout << "Stopping PTOV Thread " << i << std::endl;
         }
 
         // PDIR
@@ -186,6 +203,7 @@ public:
             while(this->pdir[i].running){
                 pthread_cond_broadcast(this->pdir[i].sniffer_cond);
             }
+            std::cout << "Stopping PDIR Thread " << i << std::endl;
         }
 
         // Join
@@ -207,6 +225,8 @@ public:
         for (int i=0;i<this->pdir.size();i++){ // PDIR
             pthread_join(this->pdir[i].thd, NULL);
         }
+
+        
 
     }
 
